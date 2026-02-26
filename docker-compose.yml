@@ -1,0 +1,65 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  auth-service:
+    build: ./services/auth-service
+    env_file: .env
+    expose:
+      - "3001"
+    depends_on:
+      - postgres
+
+  user-service:
+    build: ./services/user-service
+    env_file: .env
+    expose:
+      - "3002"
+    depends_on:
+      - postgres
+
+  product-service:
+    build: ./services/product-service
+    env_file: .env
+    expose:
+      - "3003"
+    depends_on:
+      - postgres
+
+  order-service:
+    build: ./services/order-service
+    env_file: .env
+    expose:
+      - "3004"
+    depends_on:
+      - postgres
+
+  payment-service:
+    build: ./services/payment-service
+    env_file: .env
+    expose:
+      - "3005"
+    depends_on:
+      - postgres
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - user-service
+      - product-service
+      - order-service
+      - payment-service
+
+volumes:
+  pgdata:
