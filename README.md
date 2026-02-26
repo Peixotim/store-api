@@ -35,7 +35,7 @@ Internet
 Nginx :80  (único ponto de entrada)
    ↓
 ┌─────────────────────────────────────────────┐
-│              Rede interna Docker             │
+│              Rede interna Docker            │
 │                                             │
 │  auth-service     :3001                     │
 │  user-service     :3002                     │
