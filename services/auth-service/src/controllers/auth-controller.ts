@@ -1,5 +1,3 @@
-import { LoginPayload } from "../dtos/login-payload";
-import { BadRequestError } from "../errors/http-errors";
 import { AuthService } from "../services/auth-service";
 import { NextFunction, Request, Response } from "express";
 export class AuthController{
