@@ -1,16 +1,23 @@
-FROM node:20-alpine
+# Stage 1: Base
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV CI=true
+RUN corepack enable
 
-RUN npm install -g pnpm
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter payment-service build
+RUN pnpm --filter payment-service --prod deploy --legacy /app/deployed
 
+# Stage 3: Final Image
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install
-
-COPY . .
-
-RUN pnpm run build
+COPY --from=builder /app/deployed ./
+COPY --from=builder /app/services/payment-service/dist ./dist
 
 EXPOSE 3005
 

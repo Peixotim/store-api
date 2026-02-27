@@ -1,16 +1,23 @@
-FROM node:20-alpine
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV CI=true
+RUN corepack enable
 
-RUN npm install -g pnpm
 
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter product-service build
+RUN pnpm --filter product-service --prod deploy --legacy /app/deployed
+
+
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-
-RUN pnpm install
-
-COPY . .
-
-RUN pnpm run build
+COPY --from=builder /app/deployed ./
+COPY --from=builder /app/services/product-service/dist ./dist
 
 EXPOSE 3003
 

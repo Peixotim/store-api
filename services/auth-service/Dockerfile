@@ -1,23 +1,24 @@
-FROM node:20-alpine
 
-RUN npm install -g pnpm
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV CI=true
+RUN corepack enable
 
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter auth-service build
+RUN pnpm --filter auth-service --prod deploy --legacy /app/deployed
+
+
+FROM node:20-alpine AS runner
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
+COPY --from=builder /app/deployed ./
+COPY --from=builder /app/services/auth-service/dist ./dist
 
-RUN pnpm install
-
-COPY . .
-
-RUN pnpm run build
-
-# Muda a porta conforme o serviço:
-# auth-service    → 3001
-# user-service    → 3002
-# product-service → 3003
-# order-service   → 3004
-# payment-service → 3005
 EXPOSE 3001
 
 CMD ["node", "dist/server.js"]
