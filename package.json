@@ -2,6 +2,7 @@
   "name": "microservices",
   "private": true,
   "scripts": {
+    "start:docker": "docker-compose up --build -d",
     "auth": "pnpm --filter auth-service dev",
     "user": "pnpm --filter user-service dev"
   },
