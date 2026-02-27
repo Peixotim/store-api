@@ -1,0 +1,11 @@
+{
+  "name": "microservices",
+  "private": true,
+  "scripts": {
+    "auth": "pnpm --filter auth-service dev",
+    "user": "pnpm --filter user-service dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
