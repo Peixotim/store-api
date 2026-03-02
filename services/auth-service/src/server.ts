@@ -9,7 +9,7 @@ const port = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(errorHandler);
-app.use('/auth',authRouter);
+app.use('/auth', authRouter);
 
 app.get('/health', (req : Request , res : Response) => {
   res.send(`API is Running`);
