@@ -10,7 +10,7 @@ export class LoginPayload{
 }
 
 export interface LoginReciveAPI{
-    uuid : string;
+    id : string;
     name : string;
     email : string;
     cpf: string;
