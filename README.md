@@ -179,7 +179,7 @@ Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 DB_USER=admin
-DB_PASS=senha123
+DB_PASSWORD=senha123
 DB_NAME=store
 DB_HOST=postgres
 DB_PORT=5432
