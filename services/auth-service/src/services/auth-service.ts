@@ -6,7 +6,7 @@ import { UserRepository } from "../repositories/user-repository";
 import { JwtService } from "./jwt-service";
 import { AuthTokens } from "../dtos/token-payload";
 import { decode } from "jsonwebtoken";
-
+import { isValidCpf } from "./cpf-validator";
 export class AuthService {
 
   private passwordService = new PasswordService();
@@ -33,7 +33,7 @@ export class AuthService {
 
     
       return this.buildToken({
-        sub: user.uuid,
+        sub: user.id,
         email: user.email
       })
 
@@ -45,13 +45,25 @@ export class AuthService {
 
   public async register(payload: RegisterPayload): Promise<void> {
 
+    if(!isValidCpf(payload.cpf)){
+      throw new BadRequestError(`The provided CPF is invalid.`)
+    }
+
     if (!payload?.email) {
       throw new BadRequestError(`Payload was empty or invalid`);
     }
-
+    
+    
     try {
+      const existsCpf = await this.userRepository.existsByCpf(payload.cpf);
+      if(existsCpf){
+        throw new ConflictError(`A user with this CPF already exists.`);
+      }
+
       const exists = await this.userRepository.existsByEmail(payload.email);
-      if (exists) throw new ConflictError(`A user with this email already exists.`);
+      if (exists) {
+        throw new ConflictError(`A user with this email already exists.`)
+      };
 
       const passwordHashed = await this.passwordService.hash(payload.password);
 
@@ -75,7 +87,7 @@ export class AuthService {
         const decoded = this.jwtService.verifyRefreshToken(refreshToken);
         const user = await this.userRepository.findByEmail(decoded.email);
         return this.buildToken({
-          sub: user.uuid,
+          sub: user.id,
           email: user.email
         })
     }catch(error){
