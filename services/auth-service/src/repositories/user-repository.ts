@@ -27,6 +27,18 @@ export class UserRepository{
     return response.json() as Promise<LoginReciveAPI>;
   }
 
+  public async existsByCpf(cpf :string):Promise<boolean>{
+    const response = await fetch(
+    `${this.apiBase}existsByCpf?cpf=${encodeURIComponent(cpf)}`
+  );
+    if(!response.ok){
+      throw new InternalServerError(`Failed to verify cpf`);
+    }
+    const { exists } = await response.json() as { exists : boolean }
+
+    return exists;
+  }
+
   public async create(user : RegisterPayload){
     const response = await fetch(this.apiBase,{
       method:'POST',
