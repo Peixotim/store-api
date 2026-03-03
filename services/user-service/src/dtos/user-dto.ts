@@ -1,12 +1,13 @@
-import { Optional } from "sequelize";
+import { Optional } from 'sequelize';
 
-export interface UsersAttributes{
-   id : string;
-   name : string;
-   email : string;
-   password : string;
-   cpf : string;
-   zipcode : string;
+export interface UsersAttributes {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  cpf: string;
+  zipcode: string;
+  isActive: boolean;
 }
 
-export interface UsersCreate extends Optional<UsersAttributes, 'id'>{}
+export interface UsersCreate extends Optional<UsersAttributes, 'id'> {}
