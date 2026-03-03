@@ -2,13 +2,15 @@ import 'dotenv/config';
 import express from 'express';
 import sequelize from './config/sequelize';
 import { runMigrations } from './database/migrate';
+import { errorMiddleware } from './middlewares/error-middleware';
+import router from './routers/user-routes';
 
 const app = express();
 const port = process.env.PORT || 3002;
 
-app.get('/', (req, res) => {
-  res.send('Hello from user-service!');
-});
+app.use(express.json());
+app.use(router);
+app.use(errorMiddleware);
 
 async function bootstrap(): Promise<void> {
   try {
