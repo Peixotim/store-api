@@ -3,6 +3,11 @@
   export class AuthController{
     private readonly authService = new AuthService();
 
+      public async health(req: Request, res: Response){
+        return res.status(200).json({
+          message: `API IS RUNNING !`
+        })
+      }
   public async login(req : Request , res : Response,next: NextFunction){
       try{
       const tokens = await this.authService.login(req.body);
