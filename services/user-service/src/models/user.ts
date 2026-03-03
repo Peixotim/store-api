@@ -9,6 +9,7 @@ class User extends Model<UsersAttributes, UsersCreate> implements UsersAttribute
   public password!: string;
   public zipcode!: string;
   public email!: string;
+  public isActive!: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -46,6 +47,11 @@ User.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: true,
+    },
     zipcode: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -56,7 +62,7 @@ User.init(
     tableName: 'users',
     timestamps: true,
     underscored: true,
-  }
+  },
 );
 
 export default User;
