@@ -10,5 +10,6 @@ const controller = new AuthController();
 router.post('/login', validateBody(LoginPayload) , controller.login);
 router.post('/register', validateBody(RegisterPayload), controller.register);
 router.post('/refresh' , controller.refresh);
+router.get('/health',controller.health);
 
 export {router as authRouter}
