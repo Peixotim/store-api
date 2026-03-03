@@ -16,4 +16,5 @@ export interface LoginReciveAPI{
     cpf: string;
     password: string;
     zipcode : string;
+    isActive : boolean;
 }
