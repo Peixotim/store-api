@@ -8,10 +8,8 @@ const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(express.json());
-app.use(errorHandler);
 app.use(authRouter);
-
-
+app.use(errorHandler);
 
 
 app.listen(port , () => {
