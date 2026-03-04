@@ -11,19 +11,21 @@ export class UserController {
   }
   
   public async existsByEmail(req : Request, res: Response){
-    const {email} = req.params;
+    const {email} = req.query as {email: string}
+
     const user = await this.service.existsByEmail(email);
     return res.status(200).json(user);
   }
 
 
   public async existsByCpf(req: Request, res: Response){
-    const {cpf} = req.params;
+    const {cpf} = req.query as {cpf: string}
+    
     const user = await this.service.existsByCpf(cpf);
-    return user;
+    return res.status(200).json(user);
   }
 
-  
+
   public async create(req: Request, res: Response) {
     const user = await this.service.create(req.body);
     return res.status(201).json(user);
