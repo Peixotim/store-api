@@ -7,8 +7,10 @@ export class UserRepository{
 
   public async existsByEmail(email :string):Promise<boolean>{
     const response = await fetch(
-    `${this.apiBase}exists?email=${encodeURIComponent(email)}`
+    `${this.apiBase}existsByEmail?email=${encodeURIComponent(email)}`
   );
+
+
     if(!response.ok){
       throw new InternalServerError(`Failed to verify email`);
     }
