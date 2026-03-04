@@ -17,7 +17,9 @@ router.post(
   controller.create.bind(controller)
 );
 
-router.get('/health',controller.health.bind(controller));
+router.get('/health',
+  controller.health.bind(controller)
+);
 
 router.get(
   '/',
@@ -34,6 +36,16 @@ router.get(
   '/email/:email',
   validate(emailParamSchema, 'params'),
   controller.findByEmail.bind(controller)
+);
+
+router.get('/existsByEmail/:email',
+  validate(emailParamSchema,'params'),
+  controller.existsByEmail.bind(controller)
+);
+
+router.get('/existsByCpf/:cpf',
+  validate(cpfParamSchema,'params'),
+  controller.existsByCpf.bind(controller)
 );
 
 router.get(
