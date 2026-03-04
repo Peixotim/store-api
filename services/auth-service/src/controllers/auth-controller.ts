@@ -1,7 +1,8 @@
   import { AuthService } from "../services/auth-service";
   import { NextFunction, Request, Response } from "express";
   export class AuthController{
-    private readonly authService = new AuthService();
+
+    private authService = new AuthService();
 
       public async health(req: Request, res: Response){
         return res.status(200).json({
