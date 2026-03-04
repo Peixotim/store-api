@@ -38,13 +38,13 @@ router.get(
   controller.findByEmail.bind(controller)
 );
 
-router.get('/existsByEmail/:email',
-  validate(emailParamSchema,'params'),
+router.get('/existsByEmail',
+  validate(emailParamSchema,'query'),
   controller.existsByEmail.bind(controller)
 );
 
-router.get('/existsByCpf/:cpf',
-  validate(cpfParamSchema,'params'),
+router.get('/existsByCpf',
+  validate(cpfParamSchema,'query'),
   controller.existsByCpf.bind(controller)
 );
 
