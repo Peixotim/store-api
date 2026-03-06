@@ -4,27 +4,25 @@ import { UserService } from '../services/user-service';
 export class UserController {
   private service = new UserService();
 
-  public async health(req : Request , res: Response){
+  public async health(req: Request, res: Response) {
     return res.status(200).json({
-      message : `API IS RUNNING !`
-    })
+      message: `API IS RUNNING !`,
+    });
   }
-  
-  public async existsByEmail(req : Request, res: Response){
-    const {email} = req.query as {email: string}
+
+  public async existsByEmail(req: Request, res: Response) {
+    const { email } = req.query as { email: string };
 
     const user = await this.service.existsByEmail(email);
     return res.status(200).json(user);
   }
 
+  public async existsByCpf(req: Request, res: Response) {
+    const { cpf } = req.query as { cpf: string };
 
-  public async existsByCpf(req: Request, res: Response){
-    const {cpf} = req.query as {cpf: string}
-    
     const user = await this.service.existsByCpf(cpf);
     return res.status(200).json(user);
   }
-
 
   public async create(req: Request, res: Response) {
     const user = await this.service.create(req.body);
