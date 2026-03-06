@@ -12,6 +12,41 @@ import Product from '../models/product-model';
 export class ProductService {
   private readonly productRepository = new ProductRepository();
 
+  public async findAll(): Promise<Product[]> {
+    try {
+      const allProducts: Product[] = await this.productRepository.findAll();
+
+      if (!allProducts) {
+        throw new NotFoundError(`Error Not Found Products`);
+      }
+
+      return allProducts;
+    } catch (error) {
+      if (error instanceof HttpError) {
+        throw error;
+      }
+
+      throw new InternalServerError(`Unexpected error: ${error}`);
+    }
+  }
+
+  public async findById(id: string): Promise<Product> {
+    try {
+      const product: Product | null = await this.productRepository.findById(id);
+
+      if (!product) {
+        throw new NotFoundError(`Product Not Found !`);
+      }
+
+      return product;
+    } catch (error) {
+      if (error instanceof HttpError) {
+        throw error;
+      }
+
+      throw new InternalServerError(`Unexpected error: ${error}`);
+    }
+  }
   public async create(payload: ProductCreate): Promise<Product> {
     if (!payload || Object.keys(payload).length === 0) {
       throw new BadRequestError(`Payload is empty !`);
