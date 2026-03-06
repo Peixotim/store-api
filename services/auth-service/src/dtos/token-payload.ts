@@ -5,7 +5,7 @@ export interface JwtPayload {
   exp?: number;
 }
 
-export interface AuthTokens{
+export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
 }
