@@ -1,4 +1,3 @@
-// middlewares/validate.ts
 import { ZodTypeAny } from 'zod';
 import { Request, Response, NextFunction } from 'express';
 
