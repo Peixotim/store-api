@@ -1,7 +1,7 @@
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { Request, Response, NextFunction } from 'express';
-import { BadRequestError } from '../errors/http-errors';
+import { plainToInstance } from "class-transformer";
+import { validate } from "class-validator";
+import { Request, Response, NextFunction } from "express";
+import { BadRequestError } from "../errors/http-errors";
 
 export function validateBody<T extends object>(DtoClass: new () => T) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -11,10 +11,10 @@ export function validateBody<T extends object>(DtoClass: new () => T) {
 
       if (errors.length > 0) {
         const messages = errors
-          .map(e => Object.values(e.constraints ?? {}))
+          .map((e) => Object.values(e.constraints ?? {}))
           .flat();
 
-        throw new BadRequestError('Validation failed', messages);
+        throw new BadRequestError("Validation failed", messages);
       }
 
       req.body = instance;
