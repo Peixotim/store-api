@@ -8,21 +8,19 @@ const app = express();
 const port = process.env.PORT || 3003;
 
 app.use(express.json());
-app.use('', router)
-app.get('/', (req, res) => {
-  res.send('Hello from product-service!');
-});
+app.use('', router);
 
-async function bootStrap(){
-  try{
+async function bootStrap() {
+  try {
     await sequelize.authenticate();
     await runMigrations();
-app.listen(port, () => {
-  console.log(`product-service listening at http://localhost:${port}`);
-});
-  }catch(error){
+    app.listen(port, () => {
+      console.log(`product-service listening at http://localhost:${port}`);
+    });
+  } catch (error) {
     console.error(`Error is ${error}`);
     process.exit(1);
   }
 }
 
+bootStrap();
