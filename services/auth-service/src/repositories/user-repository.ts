@@ -10,7 +10,7 @@ import {
 
 export class UserRepository {
   private apiBase = "http://user-service:3002";
-  
+
   private async handleResponse<T>(response: Response): Promise<T> {
     const text = await response.text();
 
@@ -43,7 +43,7 @@ export class UserRepository {
 
   public async existsByEmail(email: string): Promise<boolean> {
     const response = await fetch(
-      `${this.apiBase}/existsByEmail?email=${encodeURIComponent(email)}`
+      `${this.apiBase}/existsByEmail?email=${encodeURIComponent(email)}`,
     );
 
     const data = await this.handleResponse<{ exists: boolean }>(response);
@@ -52,7 +52,7 @@ export class UserRepository {
 
   public async findByEmail(email: string): Promise<LoginReciveAPI> {
     const response = await fetch(
-      `${this.apiBase}/email/${encodeURIComponent(email)}`
+      `${this.apiBase}/email/${encodeURIComponent(email)}`,
     );
 
     return this.handleResponse<LoginReciveAPI>(response);
@@ -60,7 +60,7 @@ export class UserRepository {
 
   public async existsByCpf(cpf: string): Promise<boolean> {
     const response = await fetch(
-      `${this.apiBase}/existsByCpf?cpf=${encodeURIComponent(cpf)}`
+      `${this.apiBase}/existsByCpf?cpf=${encodeURIComponent(cpf)}`,
     );
 
     const data = await this.handleResponse<{ exists: boolean }>(response);
