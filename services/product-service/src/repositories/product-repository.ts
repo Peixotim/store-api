@@ -3,6 +3,10 @@ import { ProductCreate } from '../dtos/product-dto';
 import Product from '../models/product-model';
 
 export class ProductRepository {
+  public async findAll() {
+    return await Product.findAll();
+  }
+
   public async create(data: ProductCreate) {
     return await Product.create({ ...data });
   }
