@@ -8,6 +8,7 @@ export class PasswordService {
         memoryCost: 2 ** 16,
         timeCost: 3,
         parallelism: 1,
+        
       });
     } catch (error) {
       throw new Error(`Error hashing password: ${error}`);
