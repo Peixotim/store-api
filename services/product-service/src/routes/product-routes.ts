@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { ProductController } from '../controller/product-controller';
 import { validate } from '../middlewares/validate';
 import { createProduct, findSku, findById } from '../dtos/product-schema';
+
 const router: Router = Router();
 const controller = new ProductController();
 
+router.get('/health', controller.health.bind(controller));
 router.get('/', controller.findAll.bind(controller));
 router.post('/', validate(createProduct, 'body'), controller.create.bind(controller));
 
