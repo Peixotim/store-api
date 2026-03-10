@@ -1,14 +1,26 @@
 import 'dotenv/config';
 import express from 'express';
-import { Request,Response } from 'express';
+import router from './routes/order-routes';
+import sequelize from './config/squelize';
+import { runMigrations } from './database/migrate';
 
 const app = express();
 const port = process.env.PORT || 3004;
 
-app.get('/health', (req : Request , res : Response) => {
-  res.send(`API is Running`);
-});
+app.use(express.json());
+app.use('', router);
 
-app.listen(port, () => {
-  console.log(`order-service listening at http://localhost:${port}`);
-});
+async function bootStrap() {
+  try {
+    await sequelize.authenticate();
+    await runMigrations();
+    app.listen(port, () => {
+      console.log(`Microservice Order is running !`);
+    });
+  } catch (error) {
+    console.error(`Error is ${error}`);
+    process.exit(1);
+  }
+}
+
+bootStrap();
