@@ -2,10 +2,14 @@ import { CreateOrderRequestDTO } from '../dtos/ order-dto-create';
 import { status } from '../enums/order-status';
 import { OrderItemsRepository, OrderRepository } from '../repositories/order-repository';
 import { ProductRepository } from '../repositories/product-repository';
+import { RabbitMQService } from './rabbitmq-service';
+
 export class OrderService {
   private productRepo = new ProductRepository();
   private orderRepo = new OrderRepository();
   private orderItemRepo = new OrderItemsRepository();
+
+  constructor(private rabbitMqService: RabbitMQService) {}
 
   public async createOrder(request: CreateOrderRequestDTO) {
     let totalAmount = 0;
@@ -41,5 +45,20 @@ export class OrderService {
     }));
 
     await this.orderItemRepo.bulkCreate(itemsToInsert);
+
+    const eventPayload = {
+      order_id: order.id,
+      user_id: request.user_id,
+      total_price: totalAmount,
+    };
+
+    await this.rabbitMqService.publishInQueue('order_created', eventPayload);
+
+    return order;
+  }
+
+  public async updatedOrderStatus(orderId: string, newStatus: status) {
+    await this.orderRepo.orderUpdate(orderId, { status: newStatus });
+    console.log(`✅ Order ${orderId} updated to the status: ${newStatus}`);
   }
 }
