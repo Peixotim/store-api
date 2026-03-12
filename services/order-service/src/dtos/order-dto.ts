@@ -9,3 +9,5 @@ export interface OrderAttributes {
 }
 
 export interface OrderCreate extends Optional<OrderAttributes, 'id'> {}
+
+export interface OrderOptional extends Partial<Optional<OrderAttributes, 'id'>> {}
