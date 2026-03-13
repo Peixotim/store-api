@@ -11,7 +11,12 @@ export class OrderRepository {
   public async orderUpdate(orderId: string, schema: OrderOptional) {
     return await Order.update(schema, { where: { id: orderId } });
   }
+
+  public async findById(id: string) {
+    return await Order.findByPk(id);
+  }
 }
+
 //OrderItems
 export class OrderItemsRepository {
   public async create(request: OrderItemCreateDTO) {
