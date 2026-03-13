@@ -12,7 +12,7 @@ export class OrderRepository {
     return await Order.update(schema, { where: { id: orderId } });
   }
 }
-
+//OrderItems
 export class OrderItemsRepository {
   public async create(request: OrderItemCreateDTO) {
     return await OrderItem.create({
