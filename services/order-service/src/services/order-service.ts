@@ -59,6 +59,6 @@ export class OrderService {
 
   public async updatedOrderStatus(orderId: string, newStatus: status) {
     await this.orderRepo.orderUpdate(orderId, { status: newStatus });
-    console.log(`✅ Order ${orderId} updated to the status: ${newStatus}`);
+    console.log(`Order ${orderId} updated to the status: ${newStatus}`);
   }
 }
