@@ -5,12 +5,16 @@ import { ProductRepository } from '../repositories/product-repository';
 import { RabbitMQService } from './rabbitmq-service';
 
 export class OrderService {
-  private productRepo = new ProductRepository();
-  private orderRepo = new OrderRepository();
-  private orderItemRepo = new OrderItemsRepository();
+  constructor(
+    private productRepo: ProductRepository,
+    private orderRepo: OrderRepository,
+    private orderItemRepo: OrderItemsRepository,
+    private rabbitMqService: RabbitMQService,
+  ) {}
 
-  constructor(private rabbitMqService: RabbitMQService) {}
-
+  public async findById(id: string) {
+    return await this.orderRepo.findById(id);
+  }
   public async createOrder(request: CreateOrderRequestDTO) {
     let totalAmount = 0;
     const orderItemsToSave = [];
