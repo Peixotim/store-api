@@ -3,7 +3,7 @@ import express from 'express';
 import router from './routes/order-routes';
 import sequelize from './config/squelize';
 import { runMigrations } from './database/migrate';
-import { RabbitMQService } from './services/rabbitmq-service';
+import { RabbitMQService } from './routes/services/rabbitmq-service';
 
 const app = express();
 const port = process.env.PORT || 3004;
