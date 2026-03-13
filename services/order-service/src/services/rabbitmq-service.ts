@@ -2,13 +2,14 @@ import { Connection, Channel, connect, Message } from 'amqplib';
 export class RabbitMQService {
   private connection!: Connection;
   private channel!: Channel;
+
+  constructor(private uri: string) {}
+
   private reconnect(): void {
     setTimeout(() => {
       this.start();
     }, 5000);
   }
-
-  constructor(private uri: string) {}
 
   public async start(): Promise<void> {
     try {
@@ -21,7 +22,7 @@ export class RabbitMQService {
       });
 
       this.connection.on('close', () => {
-        console.warn('⚠️ [RabbitMQ] Connection lost. Attempting to reconnect in 5 seconds...');
+        console.warn('[RabbitMQ] Connection lost. Attempting to reconnect in 5 seconds...');
         this.reconnect();
       });
     } catch (error) {
