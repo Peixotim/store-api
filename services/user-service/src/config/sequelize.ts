@@ -2,6 +2,7 @@ import { Options, Sequelize } from 'sequelize';
 import 'dotenv/config';
 
 const requiredEnvs = ['DB_NAME', 'DB_USER', 'DB_PASSWORD', 'DB_HOST'];
+
 requiredEnvs.forEach((envVar) => {
   if (!process.env[envVar]) {
     throw new Error(`[Database Config] Variável de ambiente obrigatória ausente: ${envVar}`);
