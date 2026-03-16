@@ -109,12 +109,27 @@ importers:
 
   services/payment-service:
     dependencies:
+      '@types/amqplib':
+        specifier: ^0.10.8
+        version: 0.10.8
+      amqplib:
+        specifier: ^0.10.9
+        version: 0.10.9
       dotenv:
         specifier: ^16.0.0
         version: 16.6.1
       express:
         specifier: ^4.18.0
         version: 4.22.1
+      pg:
+        specifier: ^8.19.0
+        version: 8.19.0
+      sequelize:
+        specifier: ^6.37.7
+        version: 6.37.7(pg@8.19.0)
+      umzug:
+        specifier: ^3.8.2
+        version: 3.8.2(@types/node@20.19.35)
     devDependencies:
       '@types/express':
         specifier: ^4.17.0
@@ -122,6 +137,24 @@ importers:
       '@types/node':
         specifier: ^20.14.2
         version: 20.19.35
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.56.1
+        version: 8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.0.2)(typescript@5.9.3))(eslint@10.0.2)(typescript@5.9.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.56.1
+        version: 8.56.1(eslint@10.0.2)(typescript@5.9.3)
+      eslint:
+        specifier: ^10.0.2
+        version: 10.0.2
+      eslint-config-prettier:
+        specifier: ^10.1.8
+        version: 10.1.8(eslint@10.0.2)
+      eslint-plugin-prettier:
+        specifier: ^5.5.5
+        version: 5.5.5(eslint-config-prettier@10.1.8(eslint@10.0.2))(eslint@10.0.2)(prettier@3.8.1)
+      prettier:
+        specifier: ^3.8.1
+        version: 3.8.1
       ts-node-dev:
         specifier: ^2.0.0
         version: 2.0.0(@types/node@20.19.35)(typescript@5.9.3)
