@@ -15,6 +15,12 @@ export class OrderService {
   public async findById(id: string) {
     return await this.orderRepo.findById(id);
   }
+
+  public async updatedOrderStatus(orderId: string, newStatus: status) {
+    await this.orderRepo.orderUpdate(orderId, { status: newStatus });
+    console.log(`Order ${orderId} updated to the status: ${newStatus}`);
+  }
+
   public async createOrder(request: CreateOrderRequestDTO) {
     let totalAmount = 0;
     const orderItemsToSave = [];
@@ -59,10 +65,5 @@ export class OrderService {
     await this.rabbitMqService.publishInQueue('order_created', eventPayload);
 
     return order;
-  }
-
-  public async updatedOrderStatus(orderId: string, newStatus: status) {
-    await this.orderRepo.orderUpdate(orderId, { status: newStatus });
-    console.log(`Order ${orderId} updated to the status: ${newStatus}`);
   }
 }
