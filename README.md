@@ -1,274 +1,134 @@
-# 🛒 Store API — Microservices
+# 🛒 Store API — Microservices Architecture
 
-API REST de uma loja virtual construída com arquitetura de microserviços, utilizando Node.js, TypeScript, Express, PostgreSQL, Nginx e Docker.
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
 
----
-
-## 📋 Índice
-
-- [Visão Geral](#visão-geral)
-- [Arquitetura](#arquitetura)
-- [Tecnologias](#tecnologias)
-- [Serviços](#serviços)
-- [Fluxo de Autenticação](#fluxo-de-autenticação)
-- [Fluxo de Pedidos](#fluxo-de-pedidos)
-- [Estrutura de Pastas](#estrutura-de-pastas)
-- [Variáveis de Ambiente](#variáveis-de-ambiente)
-- [Como Rodar](#como-rodar)
-- [Rotas da API](#rotas-da-api)
+Uma robusta infraestrutura de e-commerce baseada em **Microserviços**, projetada para ser escalável, resiliente e orientada a eventos. Este projeto demonstra a implementação de padrões modernos de arquitetura distribuída, utilizando comunicação síncrona (HTTP/REST) e assíncrona (RabbitMQ).
 
 ---
 
-## Visão Geral
+## 🏗️ Arquitetura do Sistema
 
-Este projeto é uma API de e-commerce construída com foco em **microserviços independentes**, onde cada domínio da aplicação é isolado em seu próprio serviço com responsabilidade única.
+O projeto é composto por 5 microserviços independentes, cada um com sua própria responsabilidade e isolamento de dados.
 
-O **Nginx** atua como proxy reverso e único ponto de entrada da aplicação, roteando as requisições para os serviços corretos. Os serviços se comunicam entre si via **HTTP interno** dentro da rede Docker.
+### Fluxo de Comunicação
+- **Síncrona (REST):** Utilizada para operações imediatas, como autenticação e consulta de perfil.
+- **Assíncrona (Event-Driven):** Utilizada para o fluxo de pedidos e pagamentos via **RabbitMQ**, garantindo que o sistema seja resiliente a falhas temporárias em serviços específicos.
+- **API Gateway (Nginx):** Atua como o único ponto de entrada para o mundo exterior, roteando o tráfego e protegendo os serviços internos.
 
----
-
-## Arquitetura
-
-```
-Internet
-   ↓
-Nginx :80  (único ponto de entrada)
-   ↓
-┌─────────────────────────────────────────────┐
-│              Rede interna Docker            │
-│                                             │
-│  auth-service     :3001                     │
-│  user-service     :3002                     │
-│  product-service  :3003                     │
-│  order-service    :3004                     │
-│  payment-service  :3005                     │
-│  postgres         :5432                     │
-└─────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Client[Cliente / Frontend] -->|HTTP| Nginx{Nginx API Gateway}
+    
+    subgraph "Internal Network"
+        Nginx -->|/api/auth| Auth[Auth Service]
+        Nginx -->|/api/users| User[User Service]
+        Nginx -->|/api/products| Product[Product Service]
+        Nginx -->|/api/orders| Order[Order Service]
+        Nginx -->|/api/payments| Payment[Payment Service]
+        
+        Auth <-->|Internal HTTP| User
+        Order -->|Internal HTTP| Product
+        
+        Order -->|Publish order_created| RabbitMQ((RabbitMQ))
+        RabbitMQ -->|Consume order_created| Payment
+        Payment -->|Publish payment_finished| RabbitMQ
+        RabbitMQ -->|Consume payment_finished| Order
+        
+        Auth & User & Product & Order & Payment --- DB[(PostgreSQL)]
+    end
 ```
 
 ---
 
-## Tecnologias
+## 🚀 Microserviços e Responsabilidades
 
-| Tecnologia | Uso |
-|---|---|
-| Node.js + TypeScript | Runtime e linguagem de cada serviço |
-| Express | Framework HTTP dos serviços |
-| PostgreSQL | Banco de dados relacional |
-| Nginx | Proxy reverso / API Gateway |
-| Docker + Docker Compose | Orquestração dos containers |
-| JWT | Autenticação stateless entre serviços |
-| pnpm | Gerenciador de pacotes |
+### 🔐 Auth Service
+Responsável pelo ciclo de vida de autenticação. Realiza o registro de novos usuários (comunicando-se com o `user-service`) e gera tokens **JWT** para sessões seguras.
 
----
+### 👤 User Service
+Gerencia o domínio de usuários e perfis. Fornece dados essenciais para o serviço de autenticação e permite que os usuários gerenciem suas informações pessoais.
 
-## Serviços
+### 📦 Product Service
+O catálogo central da aplicação. Gerencia o inventário, preços e detalhes dos produtos disponíveis para venda.
 
-### 🔐 auth-service (porta 3001)
-Responsável pelo registro e login de usuários. Gera e valida tokens JWT. Se comunica com o `user-service` via HTTP interno para buscar e criar usuários.
+### 🛍️ Order Service
+Orquestrador do processo de compra. Cria pedidos, valida estoque via HTTP e inicia o fluxo de pagamento postando eventos na fila do RabbitMQ.
 
-### 👤 user-service (porta 3002)
-Gerencia os dados dos usuários. Expõe endpoints internos consumidos pelo `auth-service` e endpoints externos para gerenciamento de perfil.
-
-### 📦 product-service (porta 3003)
-Gerencia o catálogo de produtos da loja. Controla estoque, categorias e listagens.
-
-### 🛍️ order-service (porta 3004)
-Gerencia a criação e o ciclo de vida dos pedidos. Se comunica com `product-service` para verificar estoque e com `payment-service` para processar o pagamento.
-
-### 💳 payment-service (porta 3005)
-Responsável pelo processamento de pagamentos. Recebe solicitações do `order-service` e atualiza o status do pedido.
+### 💳 Payment Service
+Processador de pagamentos (Simulação). Escuta novos pedidos, processa a transação e notifica o `order-service` sobre o sucesso ou falha do pagamento de forma assíncrona.
 
 ---
 
-## Fluxo de Autenticação
+## 🛠️ Tecnologias Utilizadas
 
-### Register
-```
-Cliente → POST /api/auth/register
-              ↓
-        auth-service recebe (name, email, password)
-              ↓
-        chama user-service → GET /users/findByEmail
-              ↓
-        se não existir → POST /users (cria usuário)
-              ↓
-        gera JWT e retorna ao cliente
-```
-
-### Login
-```
-Cliente → POST /api/auth/login
-              ↓
-        auth-service recebe (email, password)
-              ↓
-        chama user-service → GET /users/findByEmail
-              ↓
-        verifica senha com bcrypt
-              ↓
-        gera JWT e retorna ao cliente
-```
-
-### Rotas protegidas
-Todas as rotas fora de `/api/auth` exigem o header:
-```
-Authorization: Bearer <token>
-```
-O middleware `authGuard` valida o token antes de chegar no controller.
+- **Runtime:** Node.js v18+
+- **Linguagem:** TypeScript
+- **Framework:** Express.js
+- **Banco de Dados:** PostgreSQL (Sequelize ORM)
+- **Mensageria:** RabbitMQ (amqplib)
+- **Proxy/Gateway:** Nginx
+- **Containerização:** Docker & Docker Compose
+- **Package Manager:** pnpm (Monorepo/Workspaces)
 
 ---
 
-## Fluxo de Pedidos
-
-```
-Cliente → POST /api/orders
-              ↓
-        order-service cria o pedido
-              ↓
-        chama product-service → verifica estoque
-              ↓
-        chama payment-service → processa pagamento
-              ↓
-        payment-service retorna status
-              ↓
-        order-service atualiza o pedido e retorna ao cliente
-```
-
----
-
-## Estrutura de Pastas
-
-```
-store-api/
-├── docker-compose.yml
-├── .env
-├── .gitignore
-├── README.md
-├── LICENSE
-│
-├── nginx/
-│   ├── Dockerfile
-│   └── nginx.conf
-│
-└── services/
-    ├── auth-service/
-    │   ├── Dockerfile
-    │   ├── package.json
-    │   ├── tsconfig.json
-    │   └── src/
-    │       ├── server.ts
-    │       ├── routes/
-    │       ├── controllers/
-    │       ├── models/
-    │       ├── middlewares/
-    │       ├── config/
-    │       └── utils/
-    │
-    ├── user-service/
-    ├── product-service/
-    ├── order-service/
-    └── payment-service/
-        (mesma estrutura interna do auth-service)
-```
-
----
-
-## Variáveis de Ambiente
-
-Crie um arquivo `.env` na raiz do projeto:
-
-```env
-DB_USER=admin
-DB_PASSWORD=senha123
-DB_NAME=store
-DB_HOST=postgres
-DB_PORT=5432
-
-JWT_SECRET=sua_chave_secreta_aqui
-```
-
-> ⚠️ Nunca suba o `.env` para o GitHub. Ele já está no `.gitignore`.
-
----
-
-## Como Rodar
+## ⚙️ Como Executar
 
 ### Pré-requisitos
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e rodando
+### Passo a Passo
 
-### Subir todos os serviços
+1. **Clone o repositório:**
+   ```bash
+   git clone https://github.com/Peixotim/store-api.git
+   cd store-api
+   ```
 
-```bash
-docker-compose up --build
-```
+2. **Configure as Variáveis de Ambiente:**
+   Crie um arquivo `.env` na raiz seguindo o modelo:
+   ```env
+   DB_USER=admin
+   DB_PASSWORD=admin
+   DB_NAME=store
+   DB_HOST=postgres
+   DB_PORT=5432
+   JWT_SECRET=super_secret_key_123
+   AMQP_URL=amqp://guest:guest@rabbitmq:5672
+   ```
 
-### Rodar em background
+3. **Inicie a infraestrutura:**
+   ```bash
+   docker-compose up --build
+   ```
 
-```bash
-docker-compose up --build -d
-```
-
-### Parar tudo
-
-```bash
-docker-compose down
-```
-
-### Parar e limpar o banco de dados
-
-```bash
-docker-compose down -v
-```
-
-### Ver logs de um serviço específico
-
-```bash
-docker-compose logs -f auth-service
-```
+A API estará disponível em `http://localhost`.
 
 ---
 
-## Rotas da API
+## 🛣️ Principais Endpoints
 
-Todas as rotas são acessadas via `http://localhost`.
-
-### Auth
-| Método | Rota | Descrição | Auth |
+| Serviço | Endpoint | Método | Descrição |
 |---|---|---|---|
-| POST | `/api/auth/register` | Cadastro de usuário | ❌ |
-| POST | `/api/auth/login` | Login e geração de JWT | ❌ |
-
-### Users
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| GET | `/api/users/me` | Dados do usuário logado | ✅ |
-| PUT | `/api/users/me` | Atualizar perfil | ✅ |
-
-### Products
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| GET | `/api/products` | Listar produtos | ❌ |
-| GET | `/api/products/:id` | Buscar produto | ❌ |
-| POST | `/api/products` | Criar produto | ✅ |
-| PUT | `/api/products/:id` | Atualizar produto | ✅ |
-| DELETE | `/api/products/:id` | Deletar produto | ✅ |
-
-### Orders
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| GET | `/api/orders` | Listar pedidos do usuário | ✅ |
-| GET | `/api/orders/:id` | Buscar pedido | ✅ |
-| POST | `/api/orders` | Criar pedido | ✅ |
-
-### Payments
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| POST | `/api/payments` | Processar pagamento | ✅ |
-| GET | `/api/payments/:orderId` | Status do pagamento | ✅ |
+| **Auth** | `/api/auth/login` | POST | Autenticação e retorno de Token JWT |
+| **User** | `/api/users/me` | GET | Perfil do usuário logado |
+| **Product** | `/api/products` | GET | Listagem de produtos |
+| **Order** | `/api/orders` | POST | Criação de um novo pedido |
+| **Payment** | `/api/payments` | POST | Consulta manual de transações |
 
 ---
 
-## Autor : Pedro Peixoto
+## 👨‍💻 Autor
 
-Feito para fins de estudo e evolução em arquitetura de microserviços com Node.js.
+**Pedro Peixoto**
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Peixotim)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/Peixotim)
+
+---
+*Este projeto foi desenvolvido com fins educacionais para explorar os desafios e soluções de sistemas distribuídos.*
