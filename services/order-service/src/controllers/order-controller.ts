@@ -14,7 +14,6 @@ export class OrderController {
   public async createOrder(req: Request, res: Response) {
     try {
       const data = createOrderSchema.parse(req.body);
-
       const order = await this.orderService.createOrder(data);
 
       return res.status(201).json(order);
